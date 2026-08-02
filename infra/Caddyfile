@@ -15,13 +15,13 @@
   }
 }
 
-{$STUDIO_DOMAIN} {
+{$CMS_DOMAIN} {
   encode zstd gzip
-  reverse_proxy studio:8080
+  reverse_proxy cms:1337
   header {
     Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
     X-Content-Type-Options "nosniff"
-    X-Frame-Options "DENY"
+    X-Frame-Options "SAMEORIGIN"
     Referrer-Policy "strict-origin-when-cross-origin"
     Permissions-Policy "camera=(), geolocation=(), microphone=(), payment=()"
   }

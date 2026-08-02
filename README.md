@@ -1,22 +1,21 @@
 # Northstar enterprise content platform
 
-Secure starter for a Next.js 16 frontend and a self-hosted Sanity Studio.
+Secure starter for a Next.js 16 frontend with self-hosted Strapi Community Edition CMS and PostgreSQL.
 
 ## Architecture
 
-- `apps/web`: Next.js App Router, TypeScript, standalone production output, nonce-based CSP, health endpoint, Sanity server client.
-- `apps/studio`: TypeScript Sanity Studio with validation-first schemas.
-- `compose.dev.yaml`: local hot-reload containers on ports `3000` and `3333`.
-- `compose.prod.yaml`: non-root app containers behind Caddy with automatic TLS on ports `80` and `443`.
-- `infra/Caddyfile`: production reverse proxy policy.
+- `apps/web`: Next.js App Router, TypeScript, standalone production output, nonce-based CSP, health endpoint.
+- `apps/cms`: Self-hosted Strapi 5 Community Edition with PostgreSQL backend.
+- `compose.dev.yaml`: Local hot-reload containers for Next.js, Strapi, and PostgreSQL.
+- `compose.prod.yaml`: Non-root containers behind Caddy with automatic TLS.
+- `infra/Caddyfile`: Production reverse proxy configuration.
 
-Sanity Studio is a static browser application. This repository self-hosts Studio; Sanity Content Lake remains Sanity-managed. If you need a fully on-premises content database, choose a CMS with an on-premise storage option instead.
+**Fully self-hosted**: No dependency on Sanity Cloud or Strapi Cloud. All data stays in your PostgreSQL database and local volumes.
 
 ## Prerequisites
 
 - Node.js `24.13.0` and npm `11+`
 - Docker Engine `29+` and Docker Compose v2
-- A Sanity project with a private `production` dataset for production use
 
 ## Local setup
 
@@ -26,21 +25,29 @@ Sanity Studio is a static browser application. This repository self-hosts Studio
    Copy-Item .env.local.example .env.local
    ```
 
-2. Set `SANITY_STUDIO_PROJECT_ID` in `.env.local`. Use the same project ID in `NEXT_PUBLIC_SANITY_PROJECT_ID` if the frontend will query Sanity.
+2. Generate required secrets:
 
-3. Install and validate:
+   ```powershell
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+   ```
+
+   Run this for each of:
+   - `APP_KEYS` (comma-separated, at least 2 keys)
+   - `API_TOKEN_SALT`
+   - `ADMIN_JWT_SECRET`
+   - `TRANSFER_TOKEN_SALT`
+   - `JWT_SECRET`
+   - `STRAPI_WEBHOOK_SECRET`
+   - `POSTGRES_PASSWORD`
+
+3. Set all generated values in `.env.local`.
+
+4. Install and validate:
 
    ```powershell
    npm.cmd install
    npm.cmd run typecheck
    npm.cmd run lint
-   ```
-
-4. Run without Docker:
-
-   ```powershell
-   npm.cmd run dev:web
-   npm.cmd run dev:studio
    ```
 
 5. Run with Docker hot reload:
@@ -49,32 +56,29 @@ Sanity Studio is a static browser application. This repository self-hosts Studio
    docker compose --env-file .env.local -f compose.dev.yaml up --build
    ```
 
-Open `http://localhost:3000` and `http://localhost:3333`.
+   This starts:
+   - PostgreSQL on `localhost:5432`
+   - Strapi CMS on `localhost:1337`
+   - Next.js on `localhost:3000`
 
-Add the local Studio origin to Sanity CORS settings:
+6. Access Strapi Admin:
+   
+   Open `http://localhost:1337/admin` and create your first admin user.
 
-```powershell
-npm.cmd --workspace apps/studio exec sanity cors add http://localhost:3333
-```
+## Production deployment
 
-## Production self-hosting
-
-1. Copy and fill production values. Keep secrets out of Git:
+1. Copy and fill production values:
 
    ```powershell
    Copy-Item .env.production.example .env.production
    ```
 
-2. Set:
+2. Generate all secrets as described above. Use unique, high-entropy values.
 
-   - `APP_DOMAIN` and `STUDIO_DOMAIN` to real DNS names pointing at this host.
-   - `TLS_CONTACT_EMAIL` for certificate operations.
-   - `SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET`.
-   - `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET`.
-   - `SANITY_API_READ_TOKEN` only if the frontend reads a private dataset.
-   - `SANITY_REVALIDATE_SECRET` to a long random secret used only in the `x-sanity-webhook-secret` header.
-
-3. Add `https://$STUDIO_DOMAIN` to Sanity project CORS settings. Do not add a wildcard production origin.
+3. Set:
+   - `APP_DOMAIN` and `CMS_DOMAIN` to real DNS names
+   - `TLS_CONTACT_EMAIL` for certificate operations
+   - All `APP_KEYS`, salts, and secrets
 
 4. Start the stack:
 
@@ -89,57 +93,92 @@ npm.cmd --workspace apps/studio exec sanity cors add http://localhost:3333
    docker compose --env-file .env.production -f compose.prod.yaml ps
    ```
 
-Caddy owns TLS and persists certificate state in the `caddy_data` volume. Back up that volume and keep Sanity dataset backups enabled in Sanity Manage.
+## Internationalization
 
-## Secure defaults
+The CMS supports English (`en`) and Arabic (`ar`) locales out of the box.
 
-- CSP nonce generated per request through Next.js `proxy.ts`; development alone permits `unsafe-eval` for React debugging.
-- Security headers: HSTS in production, frame denial, MIME sniffing protection, strict referrer policy, permissions policy, COOP, CORP.
-- No client-side Sanity token. `SANITY_API_READ_TOKEN` is server-only.
-- Production web and Studio containers run as non-root users. Containers drop Linux capabilities, use read-only filesystems, resource limits, health checks, and `no-new-privileges`.
-- Revalidation endpoint requires a constant-time compared secret header and returns generic unauthorized errors.
-- Studio schemas enforce title, slug, description, and content constraints at the CMS boundary.
+- English is the default locale
+- Arabic pages use RTL layout automatically
+- All content types support per-locale translations
+- Slugs are localized for SEO
 
-## Sanity initialization
+To add a new locale:
 
-The Studio is initialized in `apps/studio` with typed `sanity.config.ts`, `sanity.cli.ts`, and schema types. To connect an existing project, set environment values then run:
+1. Edit `apps/cms/config/plugins.ts`
+2. Add the locale code and name to `i18n.config.locales` and `localeStrings`
+3. Rebuild the Strapi container
+
+## Content model
+
+### Pages
+
+- `title` (string, required, localized)
+- `slug` (UID, required, localized)
+- `seoDescription` (text, max 160 chars, localized)
+- `body` (rich text blocks, localized)
+
+### Site Settings
+
+- `title` (string, required, localized)
+- `description` (text, required, max 160 chars, localized)
+
+## Webhooks and revalidation
+
+Strapi webhooks trigger Next.js revalidation through `/api/revalidate`:
+
+1. Configure a webhook in Strapi Admin pointing to `https://$APP_DOMAIN/api/revalidate`
+2. Set the `x-strapi-webhook-secret` header to your `STRAPI_WEBHOOK_SECRET`
+3. Content changes automatically revalidate affected pages
+
+## Security
+
+- CSP nonce generated per request
+- Security headers: HSTS, frame denial, MIME sniffing protection
+- PostgreSQL runs on an internal Docker network, not publicly exposed
+- Strapi admin panel requires authentication
+- Public API has read-only access by default
+- Secrets validated at production startup
+- Non-root containers with dropped capabilities
+- Read-only filesystems with explicit tmpfs
+
+## Backup
+
+PostgreSQL data persists in Docker volumes. Back up regularly:
 
 ```powershell
-npm.cmd --workspace apps/studio run dev
+docker compose --env-file .env.production -f compose.prod.yaml exec postgres pg_dump -U strapi strapi > backup.sql
 ```
 
-For a new Sanity project, authenticate with Sanity and use the current CLI initializer, then keep the generated project ID and dataset in environment variables:
+Restore:
 
 ```powershell
-npm.cmd exec sanity@6.6.0 -- init --typescript --template clean --output-path apps/studio
+docker compose --env-file .env.production -f compose.prod.yaml exec -T postgres psql -U strapi strapi < backup.sql
 ```
-
-Do not place `SANITY_AUTH_TOKEN`, `SANITY_API_READ_TOKEN`, or deployment tokens in `sanity.config.ts`, client components, `NEXT_PUBLIC_*` variables, or Docker images. CI deploy tokens belong in the CI secret store.
-
-Self-hosted Studio builds are static. If you need Sanity Dashboard discovery and schema-aware features, deploy the schema manifest as part of the Studio release process:
-
-```powershell
-npm.cmd --workspace apps/studio exec sanity schema deploy
-```
-
-## Release and operations
-
-CI runs dependency installation from the lockfile, type checks, lint, the Next.js production build, and a high-severity dependency audit. Recommended production SLOs for this starter:
-
-- Availability: `99.95%` over 30 days for valid frontend requests.
-- Latency: `99%` of successful dynamic requests under `300ms`, excluding third-party asset transfer.
-- Recovery: rollback to the previous image tag within 15 minutes.
-
-Monitor the web health endpoint, Caddy certificate renewals, container restarts, CPU/memory saturation, 5xx rate, and Sanity API error rate. Abort a rollout if health checks fail, 5xx increases materially, or latency burns the error budget.
 
 ## Commands
 
 ```text
-npm.cmd run dev:web       Next.js local development
-npm.cmd run dev:studio    Sanity Studio local development
-npm.cmd run build:web     Next.js production build
-npm.cmd run build:studio  Sanity static build; requires Studio env
-npm.cmd run typecheck     TypeScript validation for both apps
-npm.cmd run lint          ESLint validation for both apps
-npm.cmd run audit         High-severity npm audit gate
+npm run dev:web       Next.js local development
+npm run dev:cms       Strapi local development
+npm run build:web     Next.js production build
+npm run build:cms     Strapi production build
+npm run typecheck     TypeScript validation
+npm run lint          ESLint validation
+npm run audit         High-severity npm audit gate
 ```
+
+## Monitoring
+
+Monitor:
+- `/api/health` endpoint on the web app
+- `/_health` endpoint on Strapi
+- Caddy certificate renewals
+- Container restarts
+- CPU/memory saturation
+- 5xx rate
+- Strapi API error rate
+
+Recommended SLOs:
+- Availability: `99.95%` over 30 days
+- Latency: `99%` under `300ms`
+- Recovery: rollback within 15 minutes

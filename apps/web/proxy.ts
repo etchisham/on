@@ -4,13 +4,16 @@ import type { NextRequest } from 'next/server'
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const isDevelopment = process.env.NODE_ENV === 'development'
+  const strapiUrl = process.env.STRAPI_PUBLIC_URL ?? 'http://localhost:1337'
+  const strapiHost = new URL(strapiUrl).hostname
+  
   const contentSecurityPolicy = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ''};
     style-src 'self' 'nonce-${nonce}'${isDevelopment ? " 'unsafe-inline'" : ''};
-    img-src 'self' blob: data: https://cdn.sanity.io;
+    img-src 'self' blob: data: https://${strapiHost};
     font-src 'self';
-    connect-src 'self' https://*.api.sanity.io https://*.sanity.io;
+    connect-src 'self' https://${strapiHost};
     object-src 'none';
     base-uri 'self';
     form-action 'self';

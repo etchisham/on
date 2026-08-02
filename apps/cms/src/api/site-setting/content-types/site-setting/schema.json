@@ -1,0 +1,41 @@
+export default {
+  kind: 'singleType',
+  collectionName: 'site_settings',
+  info: {
+    singularName: 'site-setting',
+    pluralName: 'site-settings',
+    displayName: 'Site Settings',
+    description: 'Global site settings and defaults',
+  },
+  options: {
+    draftAndPublish: false,
+    populateCreatorFields: true,
+  },
+  pluginOptions: {
+    i18n: {
+      localized: true,
+    },
+  },
+  attributes: {
+    title: {
+      type: 'string',
+      required: true,
+      maxLength: 80,
+      pluginOptions: {
+        i18n: {
+          localized: true,
+        },
+      },
+    },
+    description: {
+      type: 'text',
+      required: true,
+      maxLength: 160,
+      pluginOptions: {
+        i18n: {
+          localized: true,
+        },
+      },
+    },
+  },
+};

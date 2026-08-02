@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_social_social_links",
+  "info": {
+    "displayName": "Social Link",
+    "description": "Social media link"
+  },
+  "options": {},
+  "attributes": {
+    "platform": {
+      "type": "enumeration",
+      "enum": ["facebook", "twitter", "instagram", "linkedin", "youtube", "tiktok", "github"],
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true,
+      "regex": "^https?:\\/\\/[a-zA-Z0-9-.]+\\.[a-zA-Z]{2,}.*$"
+    },
+    "handle": {
+      "type": "string",
+      "maxLength": 100
+    }
+  }
+}

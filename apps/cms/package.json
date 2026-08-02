@@ -1,0 +1,27 @@
+{
+  "name": "@enterprise/cms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted Strapi Community Edition for enterprise content",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@strapi/plugin-graphql": "5.15.1",
+    "@strapi/plugin-i18n": "5.15.1",
+    "@strapi/plugin-users-permissions": "5.15.1",
+    "strapi": "5.15.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=24.13.0 <25",
+    "npm": ">=11"
+  }
+}

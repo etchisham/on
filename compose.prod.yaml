@@ -1,6 +1,35 @@
 name: northstar-prod
 
 services:
+  postgres:
+    image: postgres:17.5-alpine3.22
+    env_file:
+      - .env.production
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-strapi}
+      POSTGRES_USER: ${POSTGRES_USER:-strapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-strapi} -d ${POSTGRES_DB:-strapi}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 200
+    mem_limit: 512m
+    networks:
+      - database
+
   web:
     build:
       context: .
@@ -12,6 +41,7 @@ services:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
       PORT: 3000
+      STRAPI_INTERNAL_URL: http://cms:1337
     expose:
       - "3000"
     restart: unless-stopped
@@ -30,43 +60,67 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+    depends_on:
+      cms:
+        condition: service_healthy
     networks:
-      - private
+      - backend
+      - database
 
-  studio:
+  cms:
     build:
       context: .
-      dockerfile: apps/studio/Dockerfile
+      dockerfile: apps/cms/Dockerfile
       target: runner
-      args:
-        SANITY_STUDIO_PROJECT_ID: ${SANITY_STUDIO_PROJECT_ID:?Set SANITY_STUDIO_PROJECT_ID in .env.production}
-        SANITY_STUDIO_DATASET: ${SANITY_STUDIO_DATASET:-production}
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 1337
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-strapi}
+      DATABASE_USERNAME: ${POSTGRES_USER:-strapi}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+      DATABASE_SSL: "false"
+      PUBLIC_URL: https://${CMS_DOMAIN}
+      STRAPI_DISABLE_UPDATE_NOTIFICATION: "true"
+      STRAPI_TELEMETRY_DISABLED: "true"
     expose:
-      - "8080"
+      - "1337"
     restart: unless-stopped
     read_only: true
     tmpfs:
-      - /tmp:size=16m,noexec,nosuid,nodev
+      - /tmp:size=64m,noexec,nosuid,nodev
+      - /app/.cache:size=128m,noexec,nosuid,nodev
+    volumes:
+      - cms_uploads:/app/public/uploads
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    pids_limit: 128
-    mem_limit: 128m
+    pids_limit: 256
+    mem_limit: 512m
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:1337/_health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
-      - private
+      - backend
+      - database
 
   proxy:
     image: caddy:2.10.2-alpine
     environment:
       APP_DOMAIN: ${APP_DOMAIN:?Set APP_DOMAIN in .env.production}
-      STUDIO_DOMAIN: ${STUDIO_DOMAIN:?Set STUDIO_DOMAIN in .env.production}
+      CMS_DOMAIN: ${CMS_DOMAIN:?Set CMS_DOMAIN in .env.production}
       TLS_CONTACT_EMAIL: ${TLS_CONTACT_EMAIL:?Set TLS_CONTACT_EMAIL in .env.production}
     ports:
       - "80:80"
@@ -78,7 +132,7 @@ services:
     depends_on:
       web:
         condition: service_healthy
-      studio:
+      cms:
         condition: service_healthy
     restart: unless-stopped
     security_opt:
@@ -88,12 +142,17 @@ services:
     cap_add:
       - NET_BIND_SERVICE
     networks:
-      - private
+      - backend
 
 volumes:
+  postgres_data:
+  cms_uploads:
   caddy_data:
   caddy_config:
 
 networks:
-  private:
+  backend:
     driver: bridge
+  database:
+    driver: bridge
+    internal: true

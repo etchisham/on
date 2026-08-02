@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'cdn.sanity.io',
+        hostname: new URL(process.env.STRAPI_PUBLIC_URL ?? 'http://localhost:1337').hostname,
       },
     ],
   },

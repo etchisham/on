@@ -2,31 +2,31 @@
   "name": "enterprise-content-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "Enterprise-grade Next.js frontend with a self-hosted Sanity Studio.",
+  "description": "Enterprise-grade Next.js frontend with self-hosted Strapi CMS.",
   "workspaces": [
     "apps/*"
   ],
   "engines": {
-    "node": ">=24.13.0 <25",
+    "node": ">=20.9.0 <25",
     "npm": ">=11"
   },
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "npm --workspace apps/web run dev",
-    "dev:studio": "npm --workspace apps/studio run dev",
-    "build": "npm run build:web && npm run build:studio",
+    "dev:cms": "npm --workspace apps/cms run dev",
+    "build": "npm run build:web",
     "build:web": "npm --workspace apps/web run build",
-    "build:studio": "npm --workspace apps/studio run build",
+    "build:cms": "npm --workspace apps/cms run build",
     "start:web": "npm --workspace apps/web run start",
-    "lint": "npm run lint:web && npm run lint:studio",
+    "start:cms": "npm --workspace apps/cms run start",
+    "lint": "npm run lint:web && npm run lint:cms",
     "lint:web": "npm --workspace apps/web run lint",
-    "lint:studio": "npm --workspace apps/studio run lint",
-    "typecheck": "npm run typecheck:web && npm run typecheck:studio",
+    "lint:cms": "npm --workspace apps/cms run lint",
+    "typecheck": "npm run typecheck:web",
     "typecheck:web": "npm --workspace apps/web run typecheck",
-    "typecheck:studio": "npm --workspace apps/studio run typecheck",
     "audit": "npm audit --audit-level=high",
-    "sanity:build": "npm --workspace apps/studio run build",
-    "sanity:dev": "npm --workspace apps/studio run dev"
+    "strapi:dev": "npm --workspace apps/cms run dev",
+    "strapi:build": "npm --workspace apps/cms run build"
   },
   "devDependencies": {
     "@babel/runtime": "7.29.7",
