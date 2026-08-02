@@ -1,4 +1,4 @@
-FROM node:24.13.0-alpine3.22 AS base
+FROM node:26.3.0-alpine3.22 AS base
 
 WORKDIR /workspace
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -20,7 +20,7 @@ COPY . .
 ENV NODE_ENV=production
 RUN npm run build:web
 
-FROM node:24.13.0-alpine3.22 AS runner
+FROM node:26.3.0-alpine3.22 AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
