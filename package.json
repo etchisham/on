@@ -1,0 +1,52 @@
+{
+  "name": "enterprise-content-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Enterprise-grade Next.js frontend with a self-hosted Sanity Studio.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=24.13.0 <25",
+    "npm": ">=11"
+  },
+  "scripts": {
+    "dev": "npm run dev:web",
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:studio": "npm --workspace apps/studio run dev",
+    "build": "npm run build:web && npm run build:studio",
+    "build:web": "npm --workspace apps/web run build",
+    "build:studio": "npm --workspace apps/studio run build",
+    "start:web": "npm --workspace apps/web run start",
+    "lint": "npm run lint:web && npm run lint:studio",
+    "lint:web": "npm --workspace apps/web run lint",
+    "lint:studio": "npm --workspace apps/studio run lint",
+    "typecheck": "npm run typecheck:web && npm run typecheck:studio",
+    "typecheck:web": "npm --workspace apps/web run typecheck",
+    "typecheck:studio": "npm --workspace apps/studio run typecheck",
+    "audit": "npm audit --audit-level=high",
+    "sanity:build": "npm --workspace apps/studio run build",
+    "sanity:dev": "npm --workspace apps/studio run dev"
+  },
+  "devDependencies": {
+    "@babel/runtime": "7.29.7",
+    "@eslint/js": "9.39.1",
+    "@next/eslint-plugin-next": "16.2.10",
+    "@mux/mux-player": "3.13.2",
+    "@sentry/browser": "10.69.0",
+    "adm-zip": "0.6.0",
+    "ajv": "6.15.0",
+    "caniuse-lite": "1.0.30001806",
+    "css-tree": "3.2.1",
+    "date-fns": "4.4.0",
+    "focus-lock": "1.3.6",
+    "js-yaml": "4.1.1",
+    "lodash": "4.18.1",
+    "lodash-es": "4.18.1",
+    "refractor": "5.0.0",
+    "rxjs": "7.8.2",
+    "smol-toml": "1.7.1",
+    "typescript-eslint": "8.65.0",
+    "undici": "7.28.0"
+  }
+}

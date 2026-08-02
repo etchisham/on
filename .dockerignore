@@ -1,0 +1,14 @@
+.git
+.github
+.next
+node_modules
+dist
+coverage
+*.log
+.env
+.env.*
+!.env.example
+!.env.local.example
+!.env.production.example
+README.md
+SECURITY.md

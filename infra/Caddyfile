@@ -1,0 +1,28 @@
+{
+  email {$TLS_CONTACT_EMAIL}
+  auto_https prefer_wildcard
+}
+
+{$APP_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy web:3000
+  header {
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "camera=(), geolocation=(), microphone=(), payment=()"
+  }
+}
+
+{$STUDIO_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy studio:8080
+  header {
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "camera=(), geolocation=(), microphone=(), payment=()"
+  }
+}

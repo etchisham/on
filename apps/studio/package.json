@@ -1,0 +1,27 @@
+{
+  "name": "@enterprise/studio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "sanity dev --host 0.0.0.0",
+    "build": "sanity build dist",
+    "start": "sanity start dist --host 0.0.0.0",
+    "lint": "eslint src sanity.config.ts sanity.cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sanity/icons": "5.2.0",
+    "date-fns": "4.4.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sanity": "6.6.0",
+    "styled-components": "6.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.1",
+    "typescript": "5.9.3"
+  }
+}
