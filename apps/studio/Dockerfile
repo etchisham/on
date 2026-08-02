@@ -1,4 +1,4 @@
-FROM node:24.13.0-alpine3.22 AS base
+FROM node:26.3.0-alpine3.22 AS base
 
 WORKDIR /workspace
 ENV NPM_CONFIG_UPDATE_NOTIFIER=false
