@@ -24,7 +24,7 @@ ENV SANITY_STUDIO_DATASET=${SANITY_STUDIO_DATASET}
 COPY . .
 RUN npm run build:studio
 
-FROM nginxinc/nginx-unprivileged:1.29-alpine AS runner
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS runner
 
 COPY --from=builder /workspace/apps/studio/dist /usr/share/nginx/html
 COPY apps/studio/nginx.conf /etc/nginx/conf.d/default.conf
