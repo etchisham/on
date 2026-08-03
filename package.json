@@ -4,7 +4,8 @@
   "private": true,
   "description": "Enterprise-grade Next.js frontend with self-hosted Strapi CMS.",
   "workspaces": [
-    "apps/*"
+    "apps/web",
+    "apps/cms"
   ],
   "engines": {
     "node": ">=20.9.0 <25",
@@ -13,20 +14,18 @@
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "npm --workspace apps/web run dev",
-    "dev:cms": "npm --workspace apps/cms run dev",
+    "dev:cms": "npm --workspace apps/cms run develop",
     "build": "npm run build:web",
     "build:web": "npm --workspace apps/web run build",
     "build:cms": "npm --workspace apps/cms run build",
     "start:web": "npm --workspace apps/web run start",
     "start:cms": "npm --workspace apps/cms run start",
-    "lint": "npm run lint:web && npm run lint:cms",
+    "lint": "npm run lint:web",
     "lint:web": "npm --workspace apps/web run lint",
-    "lint:cms": "npm --workspace apps/cms run lint",
-    "typecheck": "npm run typecheck:web",
+    "typecheck": "npm run typecheck:web && npm run typecheck:cms",
     "typecheck:web": "npm --workspace apps/web run typecheck",
-    "audit": "npm audit --audit-level=high",
-    "strapi:dev": "npm --workspace apps/cms run dev",
-    "strapi:build": "npm --workspace apps/cms run build"
+    "typecheck:cms": "npm --workspace apps/cms run typecheck",
+    "audit": "npm audit --audit-level=high"
   },
   "devDependencies": {
     "@babel/runtime": "7.29.7",

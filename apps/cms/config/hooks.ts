@@ -1,4 +1,4 @@
-export default ({ env }) => ({
+export default () => ({
   enabled: true,
   resolver: {
     collection: {
@@ -11,13 +11,15 @@ export default ({ env }) => ({
     },
   },
   hooks: {
-    beforeCreate: (ctx) => {
-      const sanitizedData = sanitizeInput(ctx.params.data);
-      ctx.params.data = sanitizedData;
+    beforeCreate: (ctx: Record<string, unknown>) => {
+      const params = ctx.params as Record<string, unknown>;
+      const sanitizedData = sanitizeInput(params.data as Record<string, unknown>);
+      params.data = sanitizedData;
     },
-    beforeUpdate: (ctx) => {
-      const sanitizedData = sanitizeInput(ctx.params.data);
-      ctx.params.data = sanitizedData;
+    beforeUpdate: (ctx: Record<string, unknown>) => {
+      const params = ctx.params as Record<string, unknown>;
+      const sanitizedData = sanitizeInput(params.data as Record<string, unknown>);
+      params.data = sanitizedData;
     },
   },
 });

@@ -23,7 +23,7 @@ interface StrapiWebhookPayload {
   updatedAt: string
 }
 
-const ALLOWED_MODELS = new Set(['page', 'site-setting'])
+const ALLOWED_MODELS = new Set(['page', 'site-setting', 'faq'])
 const LOCALE_TO_ROUTE: Record<string, string> = {
   en: '',
   ar: '/ar',

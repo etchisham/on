@@ -27,14 +27,14 @@ export function ThemeToggle() {
   }, [])
 
   return (
-    <div className="theme-toggle" role="radiogroup" aria-label="Color theme">
+    <div className="themetoggle" role="radiogroup" aria-label="Color theme">
       {themes.map((option) => (
         <button
           key={option}
           type="button"
           role="radio"
           aria-checked={theme === option}
-          className={theme === option ? 'theme-option active' : 'theme-option'}
+          className={theme === option ? 'themeoption themeoptionactive' : 'themeoption'}
           onClick={() => {
             setTheme(option)
             applyTheme(option)

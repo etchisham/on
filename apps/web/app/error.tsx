@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    // Keep client-facing errors generic. Detailed diagnostics belong in server logs.
     console.error('Unexpected application error', { digest: error.digest })
   }, [error])
 

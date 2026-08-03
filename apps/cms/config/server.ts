@@ -1,11 +1,11 @@
-export default ({ env }) => ({
-  host: env('HOST', '0.0.0.0'),
-  port: env.int('PORT', 1337),
+export default () => ({
+  host: '0.0.0.0',
+  port: 1337,
   app: {
-    keys: env.array('APP_KEYS'),
+    keys: ['key1', 'key2'],
   },
   webhooks: {
     populateRelations: true,
   },
-  url: env('PUBLIC_URL', 'http://localhost:1337'),
+  url: 'http://localhost:1337',
 });

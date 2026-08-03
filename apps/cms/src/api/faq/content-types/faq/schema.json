@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faqs",
+  "info": {
+    "singularName": "faq",
+    "pluralName": "faqs",
+    "displayName": "FAQ",
+    "description": "Frequently asked questions with localized question and answer"
+  },
+  "options": {
+    "draftAndPublish": true,
+    "populateCreatorFields": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "question": {
+      "type": "string",
+      "required": true,
+      "minLength": 5,
+      "maxLength": 500,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "answer": {
+      "type": "text",
+      "required": true,
+      "minLength": 10,
+      "maxLength": 2000,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    }
+  }
+}
