@@ -30,7 +30,7 @@
   "devDependencies": {
     "@babel/runtime": "7.29.7",
     "@eslint/js": "9.39.1",
-    "@next/eslint-plugin-next": "16.2.10",
+    "@next/eslint-plugin-next": "16.2.12",
     "@mux/mux-player": "3.13.2",
     "@sentry/browser": "10.69.0",
     "adm-zip": "0.6.0",
